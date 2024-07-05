@@ -304,3 +304,84 @@ insert into products(id, name, price, quantity, category)
 values ('XXX1', 'Contoh Gagal', 10000, -10, 'Minuman');
 
 select * from products;
+
+create table sellers
+(
+    id  serial  not null,
+    name varchar(100) not null,
+    email varchar(100) not null,
+    primary key (id),
+    constraint email_unique unique (email)
+);
+
+alter table sellers
+add constraint email_unique unique (email);
+
+insert into sellers(name, email)
+values ('Gallery O', 'galleryobesar@gmail.com'),
+       ('Toko Budi', 'tokobudy@gmail.com'),
+       ('Toko Rully', 'rullyshop@pzn.com'),
+       ('BinShop', 'contact@binshop.com');
+
+SELECT * FROM sellers;
+
+create index sellers_id_and_name_index on sellers (id,name);
+create index sellers_email_and_name_index on sellers (email,name);
+create index sellers_name_index on sellers (name);
+
+select * from sellers where id = 1;
+select * from sellers where id = 1 or name = 'Toko Budi';
+select * from sellers where email = 'contact@binshop.com' or name = 'Toko Rully';
+select * from sellers where name = 'Toko Rully';
+
+select * from products
+where name ilike '%mie%';
+
+select * from products
+where to_tsvector(name) @@ to_tsquery('mie');
+
+-- mengambil bahasa yang tersedia
+select cfgname from pg_ts_config;
+
+create index products_name_search on products using gin (to_tsvector('indonesian', name));
+create index products_description_search on products using gin (to_tsvector('indonesian', description));
+
+select * from products where name @@ to_tsquery('mie');
+select * from products where description @@ to_tsquery('mie');
+
+select * from products where name @@ to_tsquery('mie & ayam');
+select * from products where name @@ to_tsquery('''ayam bakso''');
+
+create table wishlist
+(
+    id  serial  not null,
+    id_product varchar(10) not null,
+    description text,
+    primary key (id),
+    constraint fk_wishlist_product foreign key (id_product) references products (id)
+);
+
+insert into wishlist(id_product, description)
+    values ('P0001', 'Mie Ayam Kesukaan'),
+			('P0002', 'Mie Ayam Kesukaan'),
+			('P0005', 'Mie Ayam Kesukaan');
+
+delete from products where id = "P0005";
+
+alter table wishlist
+drop constraint fk_wishlist_product;
+
+alter table wishlist
+add constraint fk_wishlist_product foreign key (id_product) references products (id)
+on delete cascade on update cascade;
+
+insert into products(id, name, price, quantity, category)
+values ('XXX', 'Xxx', 10000, 100, 'Minuman');
+
+select * from products;
+
+insert into wishlist(id_product, description) values ('XXX', 'Contoh');
+
+select * from wishlist;
+
+delete from products where id = 'XXX';
