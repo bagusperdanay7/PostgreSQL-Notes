@@ -1,4 +1,44 @@
-# PostgreSQL Notes (from Programmer Zaman Now)
+# Tutorial PostgreSQL Database
+
+Kode ini merupakan materi PostgreSQL yang dibawakan oleh Eko Kurniawan Khannedy dari channel YouTube Programmer Zaman Now.
+
+Link Tutorial: [Video](https://www.youtube.com/watch?v=iEeveYoD0SA)
+
+## Technology stack
+
+Teknologi Yang digunakan dalam pembangunan:
+
+- PostgreSQL -> [Official Site](https://www.postgresql.org/)
+- pgAdmin 4 -> [Tools](https://www.pgadmin.org/)
+
+## Catatan Pribadi
+
+Jika ingin klona di komputer lain. Taruh di direktori berikut:
+
+    .
+    ├── Course
+    │   ├── Programmer Zaman Now
+    |   |   ├── POSTGRESQL
+    |   |   └── ...
+    |   └── ...
+    └── ...
+
+Jika sudah di berada di folder **POSTGRESQL**, baru clone.
+
+```sh
+git clone https://github.com/bagusperdanay7/PostgreSQL-Notes.git
+```
+
+## Setup
+
+**Program ini membutuhkan:**
+
+| Language & Library | Version |
+| ------------------ | ------- |
+| PostgreSQL         | 15.5+   |
+| pgAdmin 4          | 7.0+    |
+
+# Notes
 
 ---
 
