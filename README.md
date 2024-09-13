@@ -792,7 +792,7 @@ join customer as c on c.id = w.id_customer;
 
 One to one artinya sebuah table hanya boleh berelasi ke maksimal 1 data di tabel lain. Misal toko online customer hanya boleh punya 1 wallet.
 
-![Contoh](/img/contoh-one-to-one.svg)
+![Contoh](/img/contoh-one-to-one.png)
 
 ### Membuat Table Wallet (dengan unique)
 
