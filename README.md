@@ -751,6 +751,67 @@ alter table wishlist drop constraint fk_wishlist_product;
 
 ### Mengubah Behavior Menghapus Relasi
 
+```sql
+-- contoh ubah behavior
+alter table wishlist
+add constraint fk_wishlist_product foreign key (id_product) references products (id)
+on delete cascade on update cascade;
+```
+
+## Join
+
+Join digunakan menseleksi beberapa tabel sekaligus, tetapi perlu menentukan tabel yang mana yang merupakan referensi ke tabel lain (cocok dengan foreign key). Namun `JOIN` ini idealnya **tidak lebih dari 5 tabel** karena mengakibatkan performa menjadi berat dan lambat.
+
+### JOIN Semua Field
+
+```sql
+SELECT * from wishlist join products on wishlist.id_product = products.id;
+```
+
+### JOIN beberapa field
+
+```sql
+SELECT products.id, products.name, wishlist.description from wishlist join products on wishlist.id_product = products.id;
+
+-- memakai alias (AS)
+SELECT p.id, p.name, w.description from wishlist as w join products as p on w.id_product = p.id;
+```
+
+### JOIN Multiple Table
+
+```sql
+select c.email, p.id, p.name, w.description
+from wishlist as w
+join products as p on w.id_product = p.id
+join customer as c on c.id = w.id_customer;
+```
+
+## Jenis Relasi Tabel
+
+### One to One Relationship
+
+One to one artinya sebuah table hanya boleh berelasi ke maksimal 1 data di tabel lain. Misal toko online customer hanya boleh punya 1 wallet.
+
+![Contoh](/img/contoh-one-to-one.svg)
+
+### Membuat Table Wallet (dengan unique)
+
+```sql
+create table wallet
+(
+    id          serial not null,
+    id_customer int not null,
+    balance     int not null default 0,
+    primary key (id),
+    constraint wallet_customer_unique unique (id_customer),
+    constraint fk_wallet_customer foreign key (id_customer) references customer (id)
+);
+```
+
 ## Referensi
 
 - YouTube Programmer Zaman Now
+
+```
+
+```

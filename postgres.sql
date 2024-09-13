@@ -385,3 +385,48 @@ insert into wishlist(id_product, description) values ('XXX', 'Contoh');
 select * from wishlist;
 
 delete from products where id = 'XXX';
+
+SELECT * from wishlist join products on wishlist.id_product = products.id;
+
+SELECT products.id, products.name, wishlist.description from wishlist join products on wishlist.id_product = products.id;
+
+SELECT p.id, p.name, w.description from wishlist as w join products as p on w.id_product = p.id;
+
+alter table wishlist
+add column id_customer int;
+
+alter table wishlist
+add constraint fk_wishlist_customer foreign key (id_customer) references customer(id);
+
+update wishlist
+set id_customer = 1;
+where id in (2,3);
+
+update wishlist
+set id_customer = 2
+where id = 4;
+
+select c.email, p.id, p.name, w.description 
+from wishlist as w 
+join products as p on w.id_product = p.id
+join customer as c on c.id = w.id_customer;
+
+create table wallet
+(
+    id          serial not null,
+    id_customer int not null,
+    balance     int not null default 0,
+    primary key (id),
+    constraint wallet_customer_unique unique (id_customer),
+    constraint fk_wallet_customer foreign key (id_customer) references customer (id)
+);
+
+insert into wallet(id_customer, balance)
+values (1,1000000),
+(3,2000000),
+(4,3000000),
+(5,4000000);
+
+select * from wallet;
+
+select * from customer join wallet on wallet.id_customer = customer.id;
