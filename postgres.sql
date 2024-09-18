@@ -430,3 +430,32 @@ values (1,1000000),
 select * from wallet;
 
 select * from customer join wallet on wallet.id_customer = customer.id;
+
+create table categories(
+    id  varchar(10) not null,
+    name varchar(100) not null,
+    primary key (id)
+);
+
+insert into categories(id,name)
+values ('C0001', 'Makanan'),
+('C0002', 'Minuman');
+
+alter table products
+add column id_category varchar(10);
+
+alter table products
+add constraint fk_product_category foreign key (id_category) references categories(id);
+
+update products
+set id_category = 'C0001'
+where category = 'Makanan';
+
+update products
+set id_category = 'C0002'
+where category = 'Minuman';
+
+alter table products
+drop column category;
+
+select * from products join categories on products.id_category = categories.id;

@@ -808,6 +808,30 @@ create table wallet
 );
 ```
 
+### One to Many Relationship
+
+One to many artinya satu data bisa digunakan lebih dari satu kali di tabel relasinya. One to many tidak ada batasan berapa banyak data digunakan, contohnya relasi tabel categories dan products, dimana satu category bisa digunakan oleh lebih dari satu product.
+
+![Contoh](/img/one-to-many.png)
+
+### Contoh Implementasi One To Many
+
+```sql
+-- membuat table category
+create table categories(
+    id  varchar(10) not null,
+    name varchar(100) not null,
+    primary key (id)
+);
+
+-- edit table products and make constraint fk
+alter table products
+add constraint fk_product_category foreign key (id_category) references categories(id);
+
+-- select join one to many relationship
+select * from products join categories on products.id_category = categories.id;
+```
+
 ## Referensi
 
 - YouTube Programmer Zaman Now
