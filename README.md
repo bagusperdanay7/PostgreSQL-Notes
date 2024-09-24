@@ -1,15 +1,68 @@
 # Tutorial PostgreSQL Database
 
-Kode ini merupakan materi PostgreSQL yang dibawakan oleh Eko Kurniawan Khannedy dari channel YouTube Programmer Zaman Now.
+Kode ini merupakan materi PostgreSQL yang dibawakan oleh **Eko Kurniawan Khannedy** dari channel YouTube _Programmer Zaman Now_.
 
 Link Tutorial: [Video](https://www.youtube.com/watch?v=iEeveYoD0SA)
 
-## Technology stack
+Bahasan Materi Meliputi:
 
-Teknologi Yang digunakan dalam pembangunan:
+- Pengenalan Sistem Basis Data
+- Pengenalan PostgreSQL
+- Menginstall PostgreSQL
+- Database
+- Tipe Data
+- Tipe Data Number
+- Tipe Data String
+- Tipe Data Date dan Time
+- Tipe Data Boolean
+- Tipe Data Enum
+- TIpe Data Lainnya
+- Table
+- Insert Data
+- Select Data
+- Primary Key
+- Where Clause
+- Update Data
+- Delete Data
+- Alias
+- Where Operator
+- Order By Clause
+- Limit Clause
+- Select Distinct Data
+- Numeric Function
+- Auto Increment
+- Sequence
+- String Function
+- Date dan Time Function
+- Flow Control Function
+- Aggregate Function
+- Grouping
+- Constraint
+- Index
+- Full Text Search
+- Table Relationship
+- Join
+- One to One Relationship
+- One to Many Relationship
+- Many to Many Relationship
+- Jenis Jenis Join
+- Subqueries
+- Set Operator
+- Transaction
+- Locking
+- Schema
+- User Management
+- Backup Database
+- Restore Database
 
-- PostgreSQL -> [Official Site](https://www.postgresql.org/)
-- pgAdmin 4 -> [Tools](https://www.pgadmin.org/)
+## Technology stack & Tools
+
+**Program ini membutuhkan:**
+
+| Language & Library | Version |
+| ------------------ | ------- |
+| PostgreSQL         | 15.5+   |
+| pgAdmin 4          | 7.0+    |
 
 ## Catatan Pribadi
 
@@ -29,27 +82,17 @@ Jika sudah di berada di folder **POSTGRESQL**, baru clone.
 git clone https://github.com/bagusperdanay7/PostgreSQL-Notes.git
 ```
 
-## Setup
-
-**Program ini membutuhkan:**
-
-| Language & Library | Version |
-| ------------------ | ------- |
-| PostgreSQL         | 15.5+   |
-| pgAdmin 4          | 7.0+    |
-
 # Notes
 
----
-
-Ini merupakan catatan pribadi mengenai materi dari **PostgreSQL** Database dengan Pak Eko.
+Ini merupakan catatan pribadi mengenai materi dari **PostgreSQL** Database dengan Pak _Eko Kurniawan Khannedy_.
 
 ## Mengunakan PostgreSQL Pertama kali
 
 Masukkan syntax berikut di terminal, sesuaikan `--username` dan `--password` nya.
 
-```console
-psql --host=localhost --port=5432 --username=postgres --password
+```shell
+psql --host=localhost --port=5432 --username=user --password
+psql --host=localhost --port=5432 --dbname=belajar_restore --username=user --password
 ```
 
 ## Melihat Semua Database
@@ -182,7 +225,7 @@ values ('P0003', 'Mie Ayam Ceker', 20000, 100),
 select * from products;
 ```
 
-### Melihat Semua data dan hanya beberapa kolom.
+### Melihat Semua data dan hanya beberapa kolom
 
 ```sql
 select id, name, price, quantity from products;
@@ -832,10 +875,440 @@ add constraint fk_product_category foreign key (id_category) references categori
 select * from products join categories on products.id_category = categories.id;
 ```
 
+### Many to Many Relationship
+
+Many to many adalah relasi dimana ada relasi antara 2 tabel, dimana tabel pertama bisa punyai banyak relasi di tabel kedua, dan tabel kedua pun punya banyak relasi di tabel pertama. Contoh relasi antara produk dan penjualan, setiap produk bisa dijual berkali kali, dan setiap penjualan bisa untuk lebih dari satu produk.
+
+Many to many membutuhkan tabel relasi yang bertugas sebagai jembatan untuk menggabungkan relasi many to many, isi table ini ada id dari tabel pertama dan id tabel kedua. Contoh kasusnya berarti id_product dan id_order.
+
+![Contoh](/img/many-to-many.png)
+
+#### Membuat Tabel Order
+
+```sql
+create table orders
+(
+    id          serial      not null,
+    total       int         not null,
+    order_date  timestamp   not null default current_timestamp,
+    primary key (id)
+);
+
+```
+
+#### Membuat Tabel Order Detail
+
+```sql
+create table orders_detail
+(
+    id_product  varchar(10) not null,
+    id_order    int         not null,
+    price       int         not null,
+    quantity    int         not null,
+    primary key (id_product, id_order)
+);
+```
+
+#### Membuat Foreign Key
+
+```sql
+alter table orders_detail
+add constraint fk_orders_detail_product foreign key (id_product) references products (id);
+
+alter table orders_detail
+add constraint fk_orders_detail_order foreign key (id_order) references orders (id);
+```
+
+## Jenis Join
+
+Join ada banyak jenis-jenisnya di PostgreSQL antara lain:
+
+- INNER JOIN
+- LEFT JOIN
+- RIGHT JOIN
+- FULL JOIN
+
+### Inner Join
+
+![Contoh](/img/img_inner_join.png)
+
+Inner join hanya menampilkan data yang memiliki relasi di tabel lainnya, jika tidak memiliki relasi maka tidak akan ditampilkan. Inner join ini dipakai secara default di PostgreSQL ketika kita menulis `join` di sql.
+
+```sql
+select * from categories
+inner join products on products.id_category = categories.id;
+```
+
+### Left Join
+
+![Contoh](/img/img_left_join.png)
+
+Left join mirip seperti inner join, hanya saja semua data di tabel pertama akan diambil, jika ada yang tak memiliki relasi di tabel kedua, maka hasilnya `NULL`.
+
+```sql
+select * from categories
+left join products on products.id_category = categories.id;
+```
+
+### Right Join
+
+![Contoh](/img/img_right_join.png)
+
+Right join mirip seperti inner join, hanya saja semua data di tabel kedua akan diambil, jika ada yang tak memiliki relasi di tabel pertama, maka hasilnya `NULL`.
+
+```sql
+select * from categories
+right join products on products.id_category = categories.id;
+```
+
+### Full Join
+
+![Contoh](/img/img_full_outer_join.png)
+
+Full join adalah join dimana semua data di tabel pertama dan kedua akan ditampilkan, jika tidak ada join maka hasilnya akan berisi data null.
+
+```sql
+select * from categories
+full join products on products.id_category = categories.id;
+```
+
+## Subqueries
+
+### Subquery di WHERE
+
+Subquery di WHERE
+PostgreSQL mendukung pencarian data menggunakan WHERE dari hasil SELECT query, fitur ini dinamakan subquery. Contoh ketika kita ingin mencari products yang harganya diatas rata-rata, artinya melakukan `SELECT` denagn `WHERE price > harga rata`, dimana harga rata-rata perlu kita hitung menggunakan **query SELECT** lainnya menggunakan **aggregate function** `AVG`.
+
+```sql
+select * from products where price > (select avg(price) from products);
+```
+
+### Subquery di FROM
+
+Subquery bisa dilakukan di `FROM` clause, Misal ingin mencari data dari hasil query `SELECT` juga bisa dilakukan di PostgreSQL.
+
+```sql
+select max(price)
+from (select products.price as price
+from categories join products on products.id_category = categories.id) as contoh;
+```
+
+## Set Operator
+
+PostgreSQL mendukung operator set, yaitu operasi antara hasil dua `SELECT` query. Antara lain:
+
+- UNION
+- UNION ALL
+- INTERSECT
+- EXCEPT
+
+### UNION
+
+Union adalah operasi menggabungkan dua buah `SELECT` query, dimana jika terdapat data yang duplikat, data duplikatnya dihapus dari hasil query.
+
+```sql
+select distinct email from customer
+union select distinct email from guestbooks;
+```
+
+### UNION ALL
+
+Union all adalah operasi yang sama dengan `UNION`, namun data duplikat tetap akan ditampilkan di hasil querynya.
+
+```sql
+select distinct email from customer
+union all select distinct email from guestbooks;
+
+-- dikombinasikan dengan subquery
+select email, count(email)
+from (select email from customer union all
+select email from guestbooks) as contoh
+group by email;
+```
+
+### INTERSECT
+
+Intersect adalah operasi menggabungkan dua query, namun yang diambil hanya data yang terdapat pada hasil query pertama dan kedua (irisan). Data yang tidak hanya ada di salah satu query, akan dihapus di hasil operasi `INTERSECT`. Datanya muncul tidak dalam keadaan duplikat.
+
+```sql
+select distinct email from customer
+intersect
+select distinct email from guestbooks;
+```
+
+### EXCEPT
+
+Except adalah operasi dimana query pertama akan dihilangkan oleh query kedua, artinya jika ada data di query pertama yang sama dengan data yang ada di query kedua, maka data tersebut akan dihpuas dari hasil query `EXCEPT`.
+
+```sql
+select distinct email from customer
+except
+select distinct email from guestbooks;
+```
+
+## Database Transaction
+
+Database Transaction adalah fitur di DBMS dimana kita bisa melakukan beberapa perintah dan dianggap menjadi sebuah kesatuan perintah yang disebut _transaction_. Jika satu proses gagal, maka perintah perintah yang lain akan dibatalkan, dan jika sukses, maka semua perintah akan dipastikan sukses.
+
+Transaction di PostgreSQL
+
+| Perintah          | Keterangan                                                                                                    |
+| ----------------- | ------------------------------------------------------------------------------------------------------------- |
+| START TRANSACTION | Memulai proses transaksi, proses selanjutnya akan dianggap transaksi sampai perintah `COMMIT` atau `ROLLBACK` |
+| COMMIT            | Menyimpan secara permanen seluruh proses transaksi                                                            |
+| ROLLBACK          | Membatalkan secara permanen seluruh proses transaksi                                                          |
+
+> [!WARNING]
+> Perintah DDL (Data Definition Language) tidak bisa menggunakan fitur transaction, DDL adalah perintah-perintah yang digunakan untuk merubah struktur, seperti membuat tabel, menambah kolom, menghapus tabel, menghapus database dan sejenisnya. Transaction hanya bisa dilakukan pada perintah DML (Data Manipulation Language), seperti Operasi `INSERT`, `UPDATE`, dan `DELETE`.
+
+```sql
+-- commit
+start transaction ;
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction 2');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction 3');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction 4');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction 5');
+
+commit;
+
+-- rollback
+start transaction ;
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback 2');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback 3');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback 4');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback 5');
+
+rollback;
+```
+
+## Locking
+
+Locking adalah proses mengunci data di DBMS. Proses mengunci data sangat penting, salah satunya agar data benar benar terjamin konsistensinya. Karena pada kenyataannya, aplikasi yang akan dibuat pasti digunakan oleh banyak pengguna, dan banyak pengguna bisa saja akan mengakses data yang sama, jika tidak ada proses locking, bisa dipastikan akan terjadi **RACE CONDITION**, yaitu proses balapan ketika mengubah data yang sama.
+
+Contoh ketika belanja di toko online, kita akan balapan membeli barang yang sama, jika data tidak terjaga, bisa jadi kita salah update stock karena pada saat yang bersamaan banyak yang melakukan perubahan stock barang.
+
+### Locking Record
+
+Saat kita melakukan proses `TRANSACTION`, lalu kita melakukan proses perubahan data, data yang kita ubah tersebut akan secara otomatis di LOCK. Hal ini membuat proses **TRANSACTION** menjadi sangat aman. Oleh karena itu, sangat disarankan untuk selalu menggunakan fitur `TRANSACTION` ketika memanipulasi data di database, terutama ketika perintah manipulasinya lebih dari satu kali. Locking membuat sebuah proses perubahan yang dilakukan oleh pihak lain akan diminta untuk menunggu. Data akan dilocak sampai kita melakukan commit atau rollback transaksi tersebut.
+
+```sql
+-- di client X
+start transaction ;
+
+update products
+set description = 'Mie ayam original enak'
+where id = 'P0001';
+
+select * from products where id = 'P0001';
+
+commit;
+
+-- di client Y (akan menunggu prosesnya sebelum melakukan commit atau rollback)
+update products set quantity = 200 where id = 'P0001';
+
+```
+
+### Locking Record Manual
+
+Selain secara otomatis, kadang saat kita membuat aplikasi, kita juga sering melakukan `SELECT` query terlebih dahulu sebelum melakukan proses `UPDATE` misalnya. Cara locking sebuah data secara manual, kita bisa tambahkan perintah `FOR UPDATE` di belakang query `SELECT`. Saat kita lock record yang kita select, maka jika ada proses lain akan melakukan `UPDATE, DELETE, SELECT FOR UPDATE` lagi maka proses lain diminta menunggu sampai kita selesai `COMMIT` atau `ROLLBACK` transaction.
+
+```sql
+-- di client X
+start transaction ;
+
+select * from products where id = 'P0001' for update;
+
+rollback;
+
+-- di client Y (Menunggu proses client X commit atau rollback)
+update products set price = 30000 where id = 'P0001';
+```
+
+### Deadlock
+
+Deadlock adalah situasi 2 proses yang saling menuggu satu sama lain, namun data yang ditunggu dua-duanya dilock oleh proses lainnya, sehingga proses menunggu ini tidak akan pernah selesai.
+
+Contoh
+
+- Proses 1 melakukan SELECT FOR UPDATE untuk data 001
+- Proses 2 melakukan SELECT FOR UPDATE untuk data 002
+- Proses 1 melakukan SELECT FOR UPDATE untuk data 002, diminta menunggu karena dilock oleh proses 2
+- Proses 2 melakukan SELECT FOR UPDATE untuk data 001, diminta menunggu karena dilock oleh proses 1
+- Akhirnya proses 1 dan proses 2 saling menuggu
+- Deadlock terjadi
+
+```sql
+start transaction ; -- di client 1 & client 2
+
+select * from products where id = 'P0001' for update;  -- di client 1
+
+select * from products where id = 'P0002' for update;  -- di client 2
+
+select * from products where id = 'P0002' for update;  -- di client 1
+
+-- anggap proses ini dilakukan secara bersamaan, sebelum rollback atau commit. Maka akan terjadi Deadlock, namun PostgreSQL akan mendeteksi Deadlock dan menghentikan salah satu proses
+select * from products where id = 'P0001' for update; -- di client 2 (dibatalkan)
+
+rollback; -- di client 1 & 2
+```
+
+Deadlock error:
+![Deadlock Error dan Locking dilepas](/img/deadlock%20error.png)
+
+## Schema
+
+Di awal kita ibaratkan bahwa database adalah sebuah folder, dan tabel adalah file-filenya. Di PostgreSQL terdapat fitur bernama **Schema**. Anggap saja folder di dalam database, sebenarnya ketika membuat database, secara tidak sadar kita menyimpan semua tabel kita di _schema public_. Kita bisa membuat schema lain, dan pada schema yang berbeda, kita bisa membuat tabel dengan nama yang sama.
+
+Ketika membuat database, secara otomatis terdapat schema bernama public, dan ketika membuat table, secara otomatis kita akan membuat table tersebut berada di **schema public**.
+
+### Melihat Schema Saat Ini
+
+```sql
+select current_schema();
+
+-- or
+
+show search_path;
+```
+
+### Membuat dan Menghapus Schema
+
+```sql
+-- membuat
+create schema contoh;
+
+-- menghapus
+drop schema contoh;
+```
+
+### Pindah Schema
+
+```sql
+set search_path to contoh;
+
+show search_path;
+
+select current_schema();
+```
+
+### Membuat Table di Schema
+
+Satt kita membuat table, secara otomatis PostgreSQL akan membuat table di schema yang sedang kita pilih, jika kita ingin menentukan schema secara manual tanpa menggunakan schema yang sedang dipilih, kita bisa menambahkan prefix nama schema di awal nama tablenya.
+
+Misal namaschema namatable
+
+Termasuk jika ingin melakukan operasi DML ke table, bisa gunakan prefix namaschema.
+
+```sql
+-- membuat tabel di schema contoh
+create table contoh.products
+(
+    id serial not null,
+    name varchar(100) not null,
+    primary key (id)
+);
+
+-- memasukkan data tabel di schema contoh
+insert into contoh.products(name)
+values ('iPhone'),
+('Play Station');
+
+-- seleksi tabel di schema contoh
+select * from contoh.products;
+```
+
+## User Management
+
+### Root User
+
+Secara default, PostgreSQL membuat user utama sebagai super administrator, namun **best practicenya** saat menjalankan PostgreSQL dengan aplikasi yang kita buat, sangat disarankan tidak menggunakan user utama. Lebih baik buat user khusus untuk tiap aplikasi, bahkan bisa batasi dengan hak akses user.
+
+Misalnya hanya bisa `SELECT`, dan tidak boleh melakukan `INSERT`, `UPDATE` atau `DELETE`.
+
+### Membuat / Menghapus User
+
+```sql
+-- membuat
+create role nama;
+create role bagus;
+
+-- menghapus
+drop role nama;
+drop role bagus;
+```
+
+### Menambah / Mengubah Option Role Ke User
+
+PostgreSQL Documentation Role:
+
+- [Create Role Docs.](https://www.postgresql.org/docs/15/sql-createrole.html)
+- [Alter Role Docs.](https://www.postgresql.org/docs/15/sql-alterrole.html)
+
+```sql
+create role budi login password 'rahasia';
+
+alter role bagus login password 'rahasia';
+
+-- Melihat role
+SELECT rolname FROM pg_roles;
+```
+
+### Daftar atau Hapus Hak Akses
+
+Dokumentasi Hak Akses:
+
+- [GRANT (Daftar Hak Akses)](https://www.postgresql.org/docs/15/sql-grant.html)
+- [REVOKE (Hapus Hak Akses)](https://www.postgresql.org/docs/15/sql-revoke.html)
+
+```sql
+grant insert, update, select on all tables in schema public to bagus;
+grant insert, update, select on customer to budi;
+
+-- grant sequence
+grant usage, select, update on guestbooks_id_seq to bagus;
+
+revoke insert, update, select on customer from budi;
+```
+
+## Backup Database
+
+Saat membuat aplikasi menggunakan database, ada baiknya kita selalu melakukan backup data secara reguler, Untungnya PostgreSQL mendukung proses backup database. Untuk melakukan backup, kita tidak menggunakan perintah SQL, melainkan PostgreSQL menyediakan sebuah aplikasi khusus untuk backup db, namanya `pg_dump` <https://www.postgresql.org/docs/15/app-pgdump.html>.
+
+```sql
+pg_dump --host=localhost --port=5432 --dbname=belajar --username=user --format=plain --file=/Users/bagus/backup.sql
+```
+
+## Restore Database
+
+Selain backup, PostgreSQL mendukung kita untuk bisa melakukan proses restore data dari file hasil backup. untuk restore bisa menggunakan aplikasi `psql`.
+
+```sql
+psql --host=localhost --port=5432 --dbname=belajar_restore --username=user --file=Downloads/backup.sql
+```
+
 ## Referensi
 
 - YouTube Programmer Zaman Now
-
-```
-
-```
+- w3schools.com (Gambar Join)

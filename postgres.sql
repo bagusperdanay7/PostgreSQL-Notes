@@ -459,3 +459,222 @@ alter table products
 drop column category;
 
 select * from products join categories on products.id_category = categories.id;
+
+create table orders
+(
+    id          serial      not null,
+    total       int         not null,
+    order_date  timestamp   not null default current_timestamp,
+    primary key (id)
+);
+
+create table orders_detail
+(
+    id_product  varchar(10) not null,
+    id_order    int         not null,
+    price       int         not null,
+    quantity    int         not null,
+    primary key (id_product, id_order)
+);
+
+alter table orders_detail
+add constraint fk_orders_detail_product foreign key (id_product) references products (id);
+
+alter table orders_detail
+add constraint fk_orders_detail_order foreign key (id_order) references orders (id);
+
+insert into orders(total)
+values (1), (1), (1);
+
+-- insert tabel many to many (relasi)
+insert into orders_detail (id_product, id_order, price, quantity)
+values ('P0001', 1, 1000, 2),
+('P0002', 1, 1000, 2),
+('P0003', 1, 1000, 2);
+
+insert into orders_detail (id_product, id_order, price, quantity)
+values ('P0004', 2, 1000, 2),
+('P0006', 2, 1000, 2),
+('P0007', 2, 1000, 2);
+
+insert into orders_detail (id_product, id_order, price, quantity)
+values ('P0001', 3, 1000, 2),
+('P0004', 3, 1000, 2),
+('P0005', 3, 1000, 2);
+
+-- join
+select * from orders
+join orders_detail on orders_detail.id_order = orders.id
+join products on orders_detail.id_product = products.id;
+
+select * from orders
+join orders_detail on orders_detail.id_order = orders.id
+join products on orders_detail.id_product = products.id
+where orders.id = 3;
+
+insert into categories (id, name) values ('C0003', 'Gadget'), 
+('C0004', 'Laptop'), ('C0005', 'Pulsa');
+
+insert into products(id, name, price, quantity)
+values ('X0001', 'Contoh 1', 10000, 100),
+('X0002', 'Contoh 2', 10000, 100);
+
+select * from categories
+inner join products on products.id_category = categories.id;
+
+select * from categories
+left join products on products.id_category = categories.id;
+
+select * from categories
+right join products on products.id_category = categories.id;
+
+select * from categories
+full join products on products.id_category = categories.id;
+
+select * from products where price > (select avg(price) from products);
+
+select max(price)
+from (select products.price as price 
+from categories join products on products.id_category = categories.id) as contoh;
+
+create table guestbooks
+(
+    id serial not null,
+    email varchar(100) not null,
+    title varchar(100) not null,
+    content text,
+    primary key (id)
+);
+
+insert into guestbooks (email, title, content)
+values ('baguspyus@gmail.com', 'feedback bagus', 'ini feedback bagus'),
+('baguspyus@gmail.com', 'feedback bagus', 'ini feedback bagus'),
+('eko@pzn.com', 'feedback eko', 'ini feedback eko'),
+('budi@gmail.com', 'feedback budi', 'ini feedback budi'),
+('tono@gmail.com', 'feedback tono', 'ini feedback tono'),
+('tono@gmail.com', 'feedback tono', 'ini feedback tono');
+
+select distinct email from customer
+union select distinct email from guestbooks; 
+
+select distinct email from customer
+union all select distinct email from guestbooks;
+
+select email, count(email)
+from (select email from customer union all
+select email from guestbooks) as contoh
+group by email;
+
+select distinct email from customer
+intersect
+select distinct email from guestbooks;
+
+start transaction ;
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction 2');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction 3');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction 4');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'transaction 5');
+
+commit;
+
+start transaction ;
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback 2');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback 3');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback 4');
+
+insert into guestbooks (email, title, content)
+values ('transaction@pzn.com', 'transaction', 'rollback 5');
+
+rollback;
+
+start transaction ;
+
+update products
+set description = 'Mie ayam original enak'
+where id = 'P0001';
+
+select * from products where id = 'P0001';
+
+update products set quantity = 200 where id = 'P0001';
+
+commit;
+
+start transaction ;
+
+select * from products where id = 'P0001' for update;
+
+rollback;
+
+update products set price = 30000 where id = 'P0001';
+
+start transaction ;
+
+select * from products where id = 'P0001' for update;
+
+select * from products where id = 'P0002' for update;
+
+rollback;
+
+select current_schema();
+
+show search_path;
+
+set search_path to contoh;
+
+create schema contoh;
+
+drop schema contoh;
+
+select * from public.products;
+
+create table contoh.products
+(
+    id serial not null,
+    name varchar(100) not null,
+    primary key (id)
+);
+
+set search_path to public;
+
+insert into contoh.products(name)
+values ('iPhone'),
+('Play Station');
+
+select * from contoh.products;
+
+create role nama;
+create role bagus;
+
+drop role nama;
+drop role bagus;
+
+alter role bagus login password 'rahasia';
+alter role budi login password 'rahasia';
+
+grant insert, update, select on all tables in schema public to bagus;
+grant insert, update, select on customer to budi;
+grant usage, select, update on guestbooks_id_seq to bagus;
+
+revoke insert, update, select on customer from budi; 
+
+create database belajar_restore;
